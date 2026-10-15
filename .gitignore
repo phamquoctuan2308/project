@@ -1,0 +1,10 @@
+venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+
+# Dữ liệu và kết quả sinh ra (lớn, tạo lại được); giữ file đếm tay vì không tạo lại được
+data/*
+!data/ground_truth/
+outputs/
+models/*.pt

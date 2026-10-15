@@ -1,0 +1,31 @@
+# Cấu hình đếm xe cho MỘT video. Mọi toạ độ / diện tích tính theo pixel của video GỐC.
+# Tạo nhanh bằng chuột: py -m tools.make_config --video data/raw_videos/<video>.mp4
+
+roi: null            # [x, y, w, h] vùng xét chuyển động; null = cả khung hình
+line: null           # vạch đếm [[x1, y1], [x2, y2]]; null = vạch ngang ở 60% chiều cao
+direction: both      # both | down | up (vạch ngang)  hoặc  both | left | right (vạch dọc)
+process_width: 0     # thu nhỏ khung hình về bề rộng này khi phát hiện (vd 960) để tăng FPS; 0 = giữ nguyên
+warmup_frames: 60    # số khung hình đầu để MOG2 học nền, chưa đếm
+
+detector:            # MOG2 + lọc vùng chuyển động
+  history: 500       # số khung hình MOG2 dùng để mô hình hoá nền
+  var_threshold: 16  # càng lớn càng ít nhạy (ít nhiễu nhưng dễ sót xe)
+  min_area: 800      # diện tích khung bao tối thiểu (pixel^2)
+  max_area: 0        # diện tích khung bao tối đa; 0 = không giới hạn
+  min_aspect: 0.2    # tỉ lệ rộng / cao cho phép
+  max_aspect: 5.0
+  merge_ratio: 0.5   # gộp 2 khung chồng nhau > 50% diện tích khung nhỏ (mảnh vỡ của cùng xe); 0 = tắt
+
+tracker:
+  max_distance: 100    # khoảng cách tâm tối đa (pixel) để coi là cùng một xe giữa 2 khung hình
+  max_disappeared: 10  # số khung hình liên tiếp mất dấu trước khi xoá ID
+
+classifier:
+  classify_every: 3  # phân loại lại mỗi N khung hình
+  max_votes: 5       # đủ N lần phân loại thì dừng (tiết kiệm CPU)
+
+counter:
+  min_votes: 2         # chốt loại xe sau ít nhất N lần phân loại
+  max_wait: 15         # hoặc sau N khung hình kể từ lúc vượt vạch
+  min_confidence: 0.3  # độ tin cậy trung bình tối thiểu để đếm
+  min_travel: 10       # xe phải dịch chuyển ít nhất N pixel theo hướng qua vạch (lọc rung, vật đứng yên)
